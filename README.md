@@ -73,6 +73,17 @@ APP_ID=storyteller pnpm tauri build
 2. 调用 `pnpm run prepare-app -- --app-id=...`，从 `app-profiles/` 复制对应图标。
 3. 通过 `APP_ID` 环境变量驱动 `pnpm tauri build`，并上传各平台 artifact。
 
+### CI 注意事项（重要）
+
+- **修改 `package.json` 后，必须同步并提交 `pnpm-lock.yaml`**。
+  - 推荐做法：本地执行 `pnpm install`，确认只出现预期依赖变更，然后提交 lockfile。
+  - 否则 CI 在 `pnpm install --frozen-lockfile` 会失败，常见报错为 `ERR_PNPM_OUTDATED_LOCKFILE`。
+- Workflow 中不要在 `pnpm/action-setup` 里再手动指定一个与 `package.json#packageManager` 不一致的 pnpm 版本。
+  - 否则会出现 `Multiple versions of pnpm specified` 并直接失败。
+  - 当前项目以 `package.json` 的 `packageManager` 为唯一 pnpm 版本来源。
+- `--frozen-lockfile` 是 CI 的推荐模式，可保证构建可复现。
+  - 仅在紧急排障时，才临时改用 `pnpm install --no-frozen-lockfile`；之后应尽快补齐并提交 lockfile，同步回 `--frozen-lockfile`。
+
 如需扩展更多应用：
 
 1. 在 `app-profiles/<your-app-id>/icons` 中放入 Tauri 需要的图标文件。
