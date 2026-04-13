@@ -6,7 +6,7 @@ Tauri 桌面壳，用于在 Linux / Windows / macOS 上“浅封装”既有的 
 
 ```bash
 pnpm install
-# 准备默认 app（creator）并启动桌面壳
+# 准备默认 app（storyteller）并启动桌面壳
 pnpm run prepare-app
 pnpm tauri dev
 ```
@@ -28,7 +28,7 @@ APP_ID=storyteller pnpm tauri build
 ## 构建
 
 ```bash
-# 默认 creator 配置
+# 默认 app 配置
 pnpm tauri build
 
 # 选择其他 appId
@@ -43,7 +43,7 @@ APP_ID=storyteller pnpm tauri build
 
 ```json
 {
-  "defaultAppId": "creator",
+  "defaultAppId": "storyteller",
   "profiles": {
     "creator": {
       "productName": "创作者",
@@ -69,7 +69,7 @@ APP_ID=storyteller pnpm tauri build
 
 `.github/workflows/desktop-builds.yml` 会：
 
-1. 接收 `app-id`（默认 `creator`），在 ubuntu / windows / macOS 三平台矩阵内运行。
+1. 接收 `app-id`（默认 `storyteller`），在 ubuntu / windows / macOS 三平台矩阵内运行。
 2. 调用 `pnpm run prepare-app -- --app-id=...`，从 `app-profiles/` 复制对应图标。
 3. 通过 `APP_ID` 环境变量驱动 `pnpm tauri build`，并上传各平台 artifact。
 

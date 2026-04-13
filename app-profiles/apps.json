@@ -4,7 +4,7 @@
     "storyteller": {
       "productName": "创作者",
       "appName": "创作者",
-      "appUrl": "http://139.224.22.149:7280",
+      "appUrl": "http://192.168.1.92:3333",
       "iconDir": "app-profiles/storyteller/icons"
     }
   }
