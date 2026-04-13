@@ -1,8 +1,42 @@
-use std::{collections::HashMap, env};
+use std::{collections::HashMap, env, process::Command};
 
 use serde::Deserialize;
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 use url::Url;
+
+#[tauri::command]
+fn open_external_url(url: String) -> Result<(), String> {
+    let parsed = Url::parse(&url).map_err(|_| "invalid url".to_string())?;
+    if parsed.scheme() != "http" && parsed.scheme() != "https" {
+        return Err("only http/https urls are allowed".to_string());
+    }
+
+    #[cfg(target_os = "windows")]
+    let mut command = {
+        let mut cmd = Command::new("cmd");
+        cmd.args(["/C", "start", "", &url]);
+        cmd
+    };
+
+    #[cfg(target_os = "macos")]
+    let mut command = {
+        let mut cmd = Command::new("open");
+        cmd.arg(&url);
+        cmd
+    };
+
+    #[cfg(all(unix, not(target_os = "macos")))]
+    let mut command = {
+        let mut cmd = Command::new("xdg-open");
+        cmd.arg(&url);
+        cmd
+    };
+
+    command
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| format!("failed to open external url: {e}"))
+}
 
 #[derive(Clone, Debug)]
 struct ShellConfig {
@@ -170,6 +204,48 @@ fn spawn_shell_window(app: &AppHandle, config: &ShellConfig) -> tauri::Result<()
         return Ok(());
     }
 
+    let download_fallback_script = r#"
+      (() => {
+        const invoke = (url) => window.__TAURI__?.core?.invoke?.("open_external_url", { url });
+        const isLikelyDownload = (url) => {
+          const lower = url.toLowerCase();
+          return (
+            /\/(download|export)(\/|\?|$)/.test(lower) ||
+            /\.(zip|rar|7z|pdf|csv|xlsx?|docx?|pptx?|dmg|exe|msi|apk)(\?|#|$)/.test(lower)
+          );
+        };
+
+        document.addEventListener(
+          "click",
+          (event) => {
+            const link = event.target instanceof Element ? event.target.closest("a") : null;
+            if (!link || !link.href) return;
+
+            const href = link.href;
+            const shouldOpenExternal =
+              link.hasAttribute("download") ||
+              link.target === "_blank" ||
+              isLikelyDownload(href);
+
+            if (!shouldOpenExternal || !/^https?:\/\//i.test(href)) return;
+
+            event.preventDefault();
+            invoke(href);
+          },
+          true
+        );
+
+        const rawOpen = window.open.bind(window);
+        window.open = (url, ...rest) => {
+          if (typeof url === "string" && /^https?:\/\//i.test(url)) {
+            invoke(url);
+            return null;
+          }
+          return rawOpen(url, ...rest);
+        };
+      })();
+    "#;
+
     WebviewWindowBuilder::new(app, window_label, WebviewUrl::External(config.webview_url()))
         .title(&config.app_name)
         .inner_size(1280.0, 800.0)
@@ -179,6 +255,7 @@ fn spawn_shell_window(app: &AppHandle, config: &ShellConfig) -> tauri::Result<()
         .fullscreen(false)
         .visible(true)
         .decorations(true)
+        .initialization_script(download_fallback_script)
         .build()
         .map(|_| ())
 }
@@ -192,6 +269,7 @@ pub fn run() {
     );
 
     tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![open_external_url])
         .setup(move |app| {
             spawn_shell_window(&app.handle(), &shell_config)?;
             Ok(())
