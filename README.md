@@ -16,11 +16,13 @@ pnpm tauri dev
 ```bash
 # 先复制图标等资产
 pnpm run prepare-app -- --app-id=storyteller
-# 运行或构建时保持相同 appId（也可用 APP_ID 环境变量）
-APP_ID=storyteller pnpm tauri dev -- --app-id=storyteller
-APP_ID=storyteller pnpm tauri build -- --app-id=storyteller
+# 运行或构建时只需要提供 APP_ID
+APP_ID=storyteller pnpm tauri dev
+APP_ID=storyteller pnpm tauri build
 ```
 
+> 不要使用 `pnpm tauri dev -- --app-id=...` 或 `pnpm tauri build -- --app-id=...`。该参数会被传给 `cargo`，导致 `unexpected argument '--app-id'`。
+>
 > `beforeDevCommand` / `beforeBuildCommand` 会自动执行 `pnpm run prepare-app`，因此在 CI 或 `pnpm tauri dev/build` 场景只需提供 `APP_ID` 环境变量即可。
 
 ## 构建
@@ -30,7 +32,7 @@ APP_ID=storyteller pnpm tauri build -- --app-id=storyteller
 pnpm tauri build
 
 # 选择其他 appId
-APP_ID=storyteller pnpm tauri build -- --app-id=storyteller
+APP_ID=storyteller pnpm tauri build
 ```
 
 构建结果位于 `src-tauri/target/release/bundle/`，包含 AppImage、MSI/EXE、DMG/ZIP 等平台产物。

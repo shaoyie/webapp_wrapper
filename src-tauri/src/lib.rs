@@ -80,6 +80,7 @@ impl ShellConfig {
 const DEFAULT_APP_URL: &str = "http://192.168.1.92:3333";
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct AppProfile {
     #[serde(default = "default_product_name")]
     product_name: String,
@@ -186,8 +187,8 @@ fn spawn_shell_window(app: &AppHandle, config: &ShellConfig) -> tauri::Result<()
 pub fn run() {
     let shell_config = ShellConfig::resolve();
     println!(
-        "Starting creator shell with app name '{}' and url '{}'",
-        shell_config.app_name, shell_config.app_url
+        "Starting creator shell for appId '{}' with app name '{}' and url '{}'",
+        shell_config.app_id, shell_config.app_name, shell_config.app_url
     );
 
     tauri::Builder::default()
