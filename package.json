@@ -1,0 +1,21 @@
+{
+  "name": "creator-shell",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Configurable Tauri wrapper that loads a remote web application inside a desktop shell",
+  "scripts": {
+    "prepare-app": "node ./scripts/select-app.mjs",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "vite": "^6.0.3",
+    "typescript": "~5.6.2"
+  },
+  "packageManager": "pnpm@10.14.0"
+}

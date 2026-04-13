@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tauri App</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <main class="fallback">
+      <h1>创作者桌面封装</h1>
+      <p data-status>
+        正常情况下不会看到此页面，Tauri 会直接加载远程 Web App。
+      </p>
+      <section>
+        <h2>覆盖默认配置</h2>
+        <pre><code>pnpm tauri dev -- --app-url=https://example.com --app-name="示例 App"</code></pre>
+        <pre><code>APP_URL=https://example.com APP_NAME="示例 App" pnpm tauri build</code></pre>
+      </section>
+    </main>
+  </body>
+</html>

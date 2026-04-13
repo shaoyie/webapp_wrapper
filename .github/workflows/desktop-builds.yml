@@ -1,0 +1,76 @@
+name: Desktop Builds
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      app-id:
+        description: "App profile id defined in app-profiles/apps.json"
+        required: false
+        default: "creator"
+      app-url:
+        description: "Remote web app URL"
+        required: false
+        default: "http://192.168.1.92:3333"
+      app-name:
+        description: "Desktop shell name"
+        required: false
+        default: "创作者"
+
+jobs:
+  build:
+    name: Build ${{ matrix.label }} bundle
+    runs-on: ${{ matrix.os }}
+    env:
+      EFFECTIVE_APP_ID: ${{ github.event.inputs.app-id || 'creator' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: Linux
+          - os: windows-latest
+            label: Windows
+          - os: macos-latest
+            label: macOS
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare profile assets
+        run: pnpm run prepare-app -- --app-id=${{ env.EFFECTIVE_APP_ID }}
+
+      - name: Build desktop bundle
+        uses: tauri-apps/tauri-action@v0
+        env:
+          APP_ID: ${{ env.EFFECTIVE_APP_ID }}
+          APP_URL: ${{ github.event.inputs.app-url || 'http://192.168.1.92:3333' }}
+          APP_NAME: ${{ github.event.inputs.app-name || '创作者' }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          tauriScript: pnpm tauri
+          args: build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ matrix.label }}-bundles"
+          path: src-tauri/target/release/bundle/**/*
+          if-no-files-found: error

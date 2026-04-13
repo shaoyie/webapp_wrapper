@@ -1,0 +1,65 @@
+:root {
+  font-family: "Noto Sans SC", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #0a0a0a;
+  background: radial-gradient(circle at top, #fdf2ff 0%, #f3f8ff 35%, #eef2ff 100%);
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallback {
+  width: min(640px, 90vw);
+  padding: 3rem;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(6px);
+}
+
+.fallback h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  margin-bottom: 0.5rem;
+}
+
+.fallback h2 {
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5a5a5a;
+}
+
+[data-status] {
+  margin-bottom: 2rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: #f3f4ff;
+  color: #1f275f;
+}
+
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+code {
+  font-family: "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+}
+
+@media (max-width: 640px) {
+  .fallback {
+    padding: 2rem;
+  }
+}
